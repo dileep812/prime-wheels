@@ -48,22 +48,24 @@ const Profile = () => {
     }
   }, [currentUser, dispatch]);
 
-  // Fetch user activity counts for pie chart; robust fallback and loading state
   useEffect(() => {
     const fetchActivity = async () => {
       if (!currentUser) return;
       setActivityLoading(true);
       try {
         const res = await fetch('/backend/user/analytics', { credentials: 'include' });
+        
         if (res.status === 401) {
           handleSessionExpired();
           return;
         }
-        const json = await res.json().catch(() => null);
         
-        // Data validation and processing
+        const json = await res.json().catch((parseErr) => {
+          console.error('Failed to parse analytics JSON:', parseErr);
+          return null;
+        });
+        
         if (res.ok && json?.success) {
-          // Ensure all date strings are valid
           const processedSellsByStatus = {};
           
           Object.entries(json.sellsByStatus || {}).forEach(([carId, car]) => {
@@ -83,14 +85,8 @@ const Profile = () => {
             ...json,
             sellsByStatus: processedSellsByStatus
           });
-          
-          console.log('Processed activity data:', {
-            sellsCount: json.sellsCount,
-            cars: Object.keys(processedSellsByStatus).length,
-            sampleDates: Object.values(processedSellsByStatus)[0]
-          });
         } else {
-          console.error('/backend/user/analytics returned:', res.status, json);
+          console.error('/backend/user/analytics returned non-success:', res.status, json);
           setActivity({
             sellsCount: 0,
             purchasesCount: 0,
@@ -111,7 +107,7 @@ const Profile = () => {
       }
     };
     fetchActivity();
-    // fetch user requests as well
+
     const fetchRequests = async () => {
       if (!currentUser) return;
       setRequestsLoading(true);
@@ -139,7 +135,6 @@ const Profile = () => {
     fetchRequests();
   }, [currentUser]);
 
-  // SVG PieChart (copied from AgentPieChart for identical behaviour)
   function PieChart({ data, colors, size = 220, strokeWidth = 36, onHoverSlice }) {
     const total = Object.values(data).reduce((s, v) => s + (v || 0), 0) || 1;
     const radius = (size - strokeWidth) / 2;
@@ -164,7 +159,6 @@ const Profile = () => {
             strokeWidth={strokeWidth}
             onMouseEnter={() => onHoverSlice && onHoverSlice(null, null, null)}
           />
-          {/* inner transparent circle to detect pointer inside hole and hide tooltip */}
           <circle
             r={Math.max(0, radius - strokeWidth / 2)}
             cx={size / 2}
@@ -271,7 +265,6 @@ const Profile = () => {
       }
 
       const updatedUser = data.user || data;
-      // Preserve the token from the current user when updating
       const userWithToken = { ...updatedUser, token: currentUser.token };
       dispatch(updateUserSuccess(userWithToken));
       setFormData({
@@ -342,7 +335,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6 lg:p-8">
-      {/* --- WIDENED MAIN CONTAINER --- */}
       <div className="max-w-4xl mx-auto mt-30 bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
         <div className="text-center mb-8">
           <GradientText
@@ -357,10 +349,7 @@ const Profile = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* --- MAIN GRID CONTAINER FOR TWO COLUMNS --- */}
           <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12 gap-y-8">
-
-            {/* --- LEFT COLUMN: PROFILE & USER INFO --- */}
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center gap-4">
                 <div
@@ -380,7 +369,6 @@ const Profile = () => {
                   </div>
                   <input type="file" className="hidden" accept="image/*" ref={fileRef} onChange={handleFileChange} />
                 </div>
-                {/* User activity pie chart for normal users (moved to bottom of page) */}
               </div>
 
               <div>
@@ -394,7 +382,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* --- RIGHT COLUMN: PASSWORD CHANGE --- */}
             <div className="flex flex-col justify-center">
               <div className="bg-gray-700/50 rounded-lg p-4 h-full border border-gray-600">
                 <h3 className="text-lg font-semibold text-gray-300 mb-4 text-center">Change Password</h3>
@@ -411,7 +398,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* --- SUBMIT BUTTON (BELOW THE GRID) --- */}
           <div className="mt-8">
             <button
               type="submit"
@@ -427,7 +413,6 @@ const Profile = () => {
           </div>
         </form>
 
-        {/* Action Links */}
         <div className="flex flex-col sm:flex-row justify-between items-center mt-8 pt-6 border-t border-gray-700 gap-4">
           <button
             onClick={handleLogOut}
@@ -489,12 +474,10 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Status Messages */}
         {error && (<div className="mt-6 p-4 bg-red-900/30 border border-red-700 rounded-lg flex items-center gap-3 text-red-400"><svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="text-sm">{error}</span></div>)}
         {updateSuccess && (<div className="mt-6 p-4 bg-green-900/30 border border-green-700 rounded-lg flex items-center gap-3 text-green-400"><svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span className="text-sm">Profile updated successfully!</span></div>)}
       </div>
 
-      {/* --- USER ACTIVITY CARD (placed at the end of profile page) --- */}
       {currentUser?.role === 'normalUser' && (
         <div className="max-w-4xl mx-auto mt-6 bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
           <div ref={containerRef} className="relative">
@@ -538,7 +521,6 @@ const Profile = () => {
                     </div>
 
                     <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Listed box */}
                       <div className="group">
                         <div className="rounded-xl border border-gray-700 p-4 bg-[#0b1220] hover:bg-[#0f1724] transition-colors duration-200">
                           <div className="flex items-center gap-4">
@@ -551,7 +533,6 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      {/* Bought box */}
                       <div className="group">
                         <div className="rounded-xl border border-gray-700 p-4 bg-[#0b1220] hover:bg-[#0f1724] transition-colors duration-200">
                           <div className="flex items-center gap-4">
@@ -564,7 +545,6 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      {/* Requests box */}
                       <div className="group">
                         <div className="rounded-xl border border-gray-700 p-4 bg-[#0b1220] hover:bg-[#0f1724] transition-colors duration-200">
                           <div className="flex items-center gap-4">
@@ -591,7 +571,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* --- SELL REQUESTS TIMELINE SECTION --- */}
       {currentUser?.role === 'normalUser' && (
         <div className="max-w-4xl mx-auto mt-6 bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
           <div className="flex items-center justify-between mb-6">
@@ -615,7 +594,6 @@ const Profile = () => {
               {Object.entries(activity.sellsByStatus).map(([carId, car]) => (
                 <div key={carId} className="bg-[#0b1220] rounded-xl p-5 border border-gray-700 hover:border-gray-600 transition-all duration-200">
                   <div className="flex items-start gap-4">
-                    {/* Car Basic Info */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-medium text-white">{car.brand} {car.model}</h3>
@@ -635,7 +613,6 @@ const Profile = () => {
                       </div>
                       <div className="text-gray-400 text-sm mb-3">#{car.carNumber}</div>
                       
-                      {/* Agent Assignment Status */}
                       <div className="flex items-center gap-2 mt-1">
                         <div className="text-sm text-gray-300">
                           {car.status === 'pending' ? (
@@ -656,7 +633,6 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      {/* Timestamps */}
                       <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
                         <div>Submitted: {car.createdAt ? new Date(car.createdAt).toLocaleString('en-IN', {
                           year: 'numeric',
@@ -686,7 +662,6 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    {/* Status Progress Bar */}
                     <div className="hidden md:flex items-center gap-4 bg-[#0f1724] px-4 py-2 rounded-lg">
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full ${
@@ -705,7 +680,6 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    {/* Price if Available */}
                     {car.price > 0 && car.status !== 'pending' && (
                       <div className="hidden md:block text-right">
                         <div className="text-lg font-medium text-white">₹{Number(car.price || 0).toLocaleString('en-IN')}</div>
@@ -727,7 +701,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* --- USER REQUESTS SECTION --- */}
       {currentUser?.role === 'normalUser' && (
         <div className="max-w-4xl mx-auto mt-6 bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-700">
           <div className="flex items-center justify-between mb-4">

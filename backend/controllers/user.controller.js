@@ -1,6 +1,7 @@
 import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import mongoose from 'mongoose';
 import Car from '../models/car.model.js';
 import Purchase from '../models/purchase.model.js';
 import Request from '../models/request.model.js';
@@ -65,26 +66,19 @@ export const getUserAnalytics = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    // 1️⃣ Count total cars listed by this user (any status)
     const sellsCount = await Car.countDocuments({ seller: userId });
 
-    // 2️⃣ Count purchases made by this user (only sold ones)
     const purchasesCount = await Purchase.countDocuments({
       buyer: userId,
       status: 'sold'
     });
 
-    // 3️⃣ Count total requests made by this user
     const requestsCount = await Request.countDocuments({ buyer: userId });
 
-    // 4️⃣ Use Car model's ObjectId constructor instead of mongoose
-    const ObjectId = Car.db.Types.ObjectId;
-
-    // 5️⃣ Aggregate cars with agent details
     const cars = await Car.aggregate([
       { 
         $match: { 
-          seller: new ObjectId(userId)
+          seller: new mongoose.Types.ObjectId(userId)
         }
       },
       {
@@ -117,18 +111,35 @@ export const getUserAnalytics = async (req, res, next) => {
       }
     ]);
 
-    // 6️⃣ Format car data for frontend
     const sellsByStatus = {};
     cars.forEach(car => {
-      sellsByStatus[car.carId.toString()] = {
-        ...car,
-        createdAt: car.createdAt?.toISOString(),
-        updatedAt: car.updatedAt?.toISOString(),
-        verificationStartTime: car.verificationStartTime?.toISOString()
+      const carId = car._id || car.carId;
+      
+      // Helper to safely convert dates
+      const formatDate = (dateValue) => {
+        if (!dateValue) return null;
+        if (typeof dateValue === 'string') return dateValue;
+        if (dateValue instanceof Date) return dateValue.toISOString();
+        if (dateValue.toISOString) return dateValue.toISOString();
+        return String(dateValue);
+      };
+      
+      sellsByStatus[carId.toString()] = {
+        _id: carId,
+        brand: car.brand,
+        model: car.model,
+        carNumber: car.carNumber,
+        status: car.status,
+        price: car.price,
+        agent: car.agent,
+        agentName: car.agentName,
+        seller: car.seller,
+        createdAt: formatDate(car.createdAt),
+        updatedAt: formatDate(car.updatedAt),
+        verificationStartTime: formatDate(car.verificationStartTime)
       };
     });
 
-    // 7️⃣ Return analytics
     res.status(200).json({
       success: true,
       sellsCount,
@@ -138,6 +149,7 @@ export const getUserAnalytics = async (req, res, next) => {
     });
 
   } catch (error) {
+    console.error('getUserAnalytics error:', error);
     next(error);
   }
 };
