@@ -8,6 +8,7 @@ import fs from 'fs';
 import helmet from "helmet";
 import morgan from "morgan";
 import { fileURLToPath } from "url";
+import { limiter } from './config/rateLimiterConfig.js';
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
 import sellRoutes from './routes/sell.route.js';
@@ -45,6 +46,9 @@ app.use(
 
 // Console logger (for development)
 app.use(morgan("dev"));
+
+// Rate limiter - 100 requests per hour
+app.use(limiter);
 
 app.use(cors({
     origin: ['http://localhost:5173'],
