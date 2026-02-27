@@ -411,6 +411,7 @@ export const rejectCar = async (req, res, next) => {
   try {
     const carId = req.params.id;
     const agentId = req.user.id;
+    const { rejectionReason } = req.body;
 
     const car = await Car.findById(carId).populate("seller");
     if (!car) return next(errorHandler(404, "Car not found"));
@@ -423,6 +424,7 @@ export const rejectCar = async (req, res, next) => {
     }
 
     car.status = "rejected";
+    car.rejectionReason = rejectionReason || "No specific reason provided";
     car.verificationDays = undefined;
     car.verificationDeadline = undefined;
     car.verificationStartTime = undefined;
@@ -435,14 +437,14 @@ export const rejectCar = async (req, res, next) => {
     await Notification.create({
       userId: car.seller._id,
       type: "verification_update",
-      message: `We're sorry, but your car ${car.brand} ${car.model} did not pass our verification process and has been rejected.`,
+      message: `We're sorry, but your car ${car.brand} ${car.model} did not pass our verification process and has been rejected. Reason: ${car.rejectionReason}`,
     });
 
     // Send email to seller
     await sendEmail(
       car.seller.email,
       "Car Verification Rejected - PrimeWheels",
-      `Dear ${car.seller.username},\n\nWe regret to inform you that your car ${car.brand} ${car.model} did not pass our verification process. As a result, it has been marked as "Rejected".\n\nPlease contact our support team if you have any questions.\n\nBest regards,\nPrimeWheels Team`
+      `Dear ${car.seller.username},\n\nWe regret to inform you that your car ${car.brand} ${car.model} did not pass our verification process. As a result, it has been marked as "Rejected".\n\nReason for rejection: ${car.rejectionReason}\n\nPlease contact our support team if you have any questions.\n\nBest regards,\nPrimeWheels Team`
     );
 
     res.status(200).json({
@@ -494,5 +496,106 @@ export const checkExpiredVerifications = async () => {
   } catch (err) {
     console.error("Error checking expired verifications:", err);
     return 0;
+  }
+};
+// Get detailed analysis of a specific agent (admin only)
+export const getDetailedAgent = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Validate agent ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid agent ID format",
+      });
+    }
+
+    // Get agent details
+    const agent = await User.findById(id).select("_id username email avatar role status createdAt");
+    
+    if (!agent || agent.role !== "agent") {
+      return res.status(404).json({
+        success: false,
+        message: "Agent not found",
+      });
+    }
+
+    // Get all cars handled by this agent
+    const cars = await Car.find({ agent: id })
+      .select("_id brand model carNumber price status rejectionReason sellerName createdAt updatedAt vehicleType seater price");
+
+    // Categorize cars
+    const approvedCars = cars.filter((car) => car.status === "available");
+    const rejectedCars = cars.filter((car) => car.status === "rejected");
+    const pendingCars = cars.filter((car) => car.status === "pending");
+    const verificationCars = cars.filter((car) => car.status === "verification");
+    const soldCars = cars.filter((car) => car.status === "sold");
+
+    // Calculate metrics
+    const totalCars = cars.length;
+    const approvalRate = totalCars > 0 ? ((approvedCars.length / totalCars) * 100).toFixed(2) : 0;
+    const rejectionRate = totalCars > 0 ? ((rejectedCars.length / totalCars) * 100).toFixed(2) : 0;
+    const totalRevenue = soldCars.reduce((sum, car) => sum + (car.price || 0), 0);
+
+    // Build rejection reasons array with car details
+    const rejectionDetails = rejectedCars.map((car) => ({
+      _id: car._id,
+      carNumber: car.carNumber,
+      brand: car.brand,
+      model: car.model,
+      reason: car.rejectionReason || "No reason specified",
+      rejectedAt: car.updatedAt,
+    }));
+
+    // Build vehicle type breakdown
+    const vehicleTypeBreakdown = {};
+    approvedCars.forEach((car) => {
+      vehicleTypeBreakdown[car.vehicleType] = (vehicleTypeBreakdown[car.vehicleType] || 0) + 1;
+    });
+
+    res.status(200).json({
+      success: true,
+      agent: {
+        _id: agent._id,
+        username: agent.username,
+        email: agent.email,
+        avatar: agent.avatar,
+        joinedDate: agent.createdAt,
+      },
+      stats: {
+        totalCars,
+        approvedCars: approvedCars.length,
+        rejectedCars: rejectedCars.length,
+        pendingCars: pendingCars.length,
+        verificationCars: verificationCars.length,
+        soldCars: soldCars.length,
+        approvalRate: parseFloat(approvalRate),
+        rejectionRate: parseFloat(rejectionRate),
+        totalRevenue,
+      },
+      vehicleTypeBreakdown,
+      carsList: {
+        approved: approvedCars.map((car) => ({
+          _id: car._id,
+          brand: car.brand,
+          model: car.model,
+          carNumber: car.carNumber,
+          price: car.price,
+          listedAt: car.createdAt,
+        })),
+        rejected: rejectionDetails,
+        sold: soldCars.map((car) => ({
+          _id: car._id,
+          brand: car.brand,
+          model: car.model,
+          carNumber: car.carNumber,
+          price: car.price,
+          soldAt: car.updatedAt,
+        })),
+      },
+    });
+  } catch (err) {
+    next(err);
   }
 };

@@ -1,8 +1,8 @@
 import express from "express";
-import { verifyToken, verifyAgent } from "../utils/verifyUser.js";
+import { verifyToken, verifyAgent, verifyAdmin } from "../utils/verifyUser.js";
 
 
-import { listAssignedCars, acceptCarForVerification, listCarsForVerification, approveCar, rejectCar, getAgentStats, getAgentLeaderboard } from "../controllers/agent.controller.js";
+import { listAssignedCars, acceptCarForVerification, listCarsForVerification, approveCar, rejectCar, getAgentStats, getAgentLeaderboard, getDetailedAgent } from "../controllers/agent.controller.js";
 
 
 const router = express.Router();
@@ -15,7 +15,8 @@ router.get("/verification", verifyToken, verifyAgent, listCarsForVerification);
 router.get("/stats", verifyToken, verifyAgent, getAgentStats);
 router.get("/leaderboard", verifyToken, verifyAgent, getAgentLeaderboard);
 
-
+// Admin only - detailed agent analysis
+router.get("/detailed/:id", verifyToken, verifyAdmin, getDetailedAgent);
 router.post("/approve/:id", verifyToken, verifyAgent, approveCar);
 router.post("/reject/:id", verifyToken, verifyAgent, rejectCar);
 

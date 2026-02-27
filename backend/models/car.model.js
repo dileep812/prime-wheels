@@ -111,6 +111,11 @@ const carSchema = new Schema(
       message: "Status must be pending, available, verification, sold, or rejected",
       default: "pending",
     },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Rejection reason cannot exceed 500 characters"],
+    },
     address: {
       type: String,
       trim: true,
