@@ -365,34 +365,54 @@ export default function Card({ car, onAccept, isApprovalPage = false, isVerifyPa
           ) : isApprovalPage && currentUser?.role === "agent" ? (
             <>
               {isVerifyPage ? (
-                <div className="flex space-x-3">
-                  <motion.button
-                    onClick={() => onAccept(car)}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-green-500/25 transition-all duration-300 flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Approve Car
-                  </motion.button>
+                <div className="flex flex-col space-y-3">
+                  <div className="flex space-x-3">
+                    <motion.button
+                      onClick={() => onAccept(car)}
+                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-green-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Approve Car
+                    </motion.button>
 
+                    <motion.button
+                      onClick={() => onReject(car._id)}
+                      className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-red-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Reject
+                    </motion.button>
+                  </div>
                   <motion.button
-                    onClick={() => onReject(car._id)}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-red-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                    onClick={() => navigate(`/car-details/${car._id}`)}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
                     whileHover={{ scale: 1.02, y: -1 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Reject
+                    View Full Details
                   </motion.button>
                 </div>
               ) : (
-                <motion.button
-                  onClick={() => onAccept(car)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-500/25 transition-all duration-300 flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Approve Listing
-                </motion.button>
+                <div className="flex flex-col space-y-3">
+                  <motion.button
+                    onClick={() => onAccept(car)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-blue-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Approve Listing
+                  </motion.button>
+                  <motion.button
+                    onClick={() => navigate(`/car-details/${car._id}`)}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
+                    whileHover={{ scale: 1.02, y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    View Full Details
+                  </motion.button>
+                </div>
               )}
             </>
           ) : (

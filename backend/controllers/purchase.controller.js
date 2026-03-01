@@ -25,7 +25,6 @@ export const createPurchase = async (req, res, next) => {
 
     // Validate required fields
     if (!car || !buyer || !firstName || !lastName || !email || !phone || !address || !city || !state || !pincode || !totalPrice) {
-      console.error('Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'All fields are required'
@@ -35,7 +34,6 @@ export const createPurchase = async (req, res, next) => {
     // Validate car exists
     const carExists = await Car.findById(car);
     if (!carExists) {
-      console.error('Car not found:', car);
       return res.status(404).json({
         success: false,
         message: 'Car not found'
@@ -44,7 +42,6 @@ export const createPurchase = async (req, res, next) => {
 
     // Check if car is available
     if (carExists.status !== 'available') {
-      console.error('Car not available:', carExists.status);
       return res.status(400).json({
         success: false,
         message: 'Car is not available for purchase'
@@ -94,7 +91,6 @@ export const createPurchase = async (req, res, next) => {
 
     res.status(201).json(purchase);
   } catch (error) {
-    console.error('Error creating purchase:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create purchase'
@@ -134,37 +130,6 @@ export const getPurchaseById = async (req, res, next) => {
   }
 };
 
-export const updatePurchaseStatus = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const purchase = await Purchase.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true, runValidators: true }
-    ).populate('car');
-
-    if (!purchase) {
-      return next(errorHandler(404, 'Purchase not found'));
-    }
-
-    // If purchase is cancelled, make car available again
-    if (status === 'cancelled') {
-      await Car.findByIdAndUpdate(purchase.car._id, { status: 'available' });
-    }
-
-    // If purchase is sold, keep car as sold
-    if (status === 'sold') {
-      await Car.findByIdAndUpdate(purchase.car._id, { status: 'sold' });
-    }
-
-    res.status(200).json(purchase);
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const getAllPurchases = async (req, res, next) => {
   try {
     const purchases = await Purchase.find()
@@ -173,6 +138,30 @@ export const getAllPurchases = async (req, res, next) => {
       .sort({ createdAt: -1 });
 
     res.status(200).json(purchases);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get purchase by car ID
+export const getPurchaseByCarId = async (req, res, next) => {
+  try {
+    const { carId } = req.params;
+    const purchase = await Purchase.findOne({ car: carId })
+      .populate('car')
+      .populate('buyer', 'username email phoneNumber');
+
+    if (!purchase) {
+      return res.status(404).json({
+        success: false,
+        message: 'Purchase not found for this car'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      purchase
+    });
   } catch (error) {
     next(error);
   }

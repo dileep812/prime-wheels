@@ -83,12 +83,6 @@ const Profile = () => {
             ...json,
             sellsByStatus: processedSellsByStatus
           });
-          
-          console.log('Processed activity data:', {
-            sellsCount: json.sellsCount,
-            cars: Object.keys(processedSellsByStatus).length,
-            sampleDates: Object.values(processedSellsByStatus)[0]
-          });
         } else {
           console.error('/backend/user/analytics returned:', res.status, json);
           setActivity({
@@ -669,6 +663,14 @@ const Profile = () => {
                                 minute: '2-digit',
                               })}</div>
                             )}
+                          </div>
+                          <div className="mt-4">
+                            <button
+                              onClick={() => navigate(`/car-details/${carId}`)}
+                              className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors text-sm"
+                            >
+                              View Details
+                            </button>
                           </div>
                         </div>
                         <div className="hidden md:flex items-center gap-4 bg-[#0f1724] px-4 py-2 rounded-lg">

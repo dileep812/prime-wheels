@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import bgImage from '../assets/images/inventoryBgImage.jpg';
 
 export default function PurchaseSuccess() {
@@ -8,14 +8,10 @@ export default function PurchaseSuccess() {
   const { purchaseData } = location.state || {};
 
   useEffect(() => {
-    console.log('PurchaseSuccess - location.state:', location.state);
-    console.log('PurchaseSuccess - purchaseData:', purchaseData);
-    
     if (!purchaseData) {
-      console.log('No purchase data found, redirecting to home');
       setTimeout(() => navigate('/'), 2000);
     }
-  }, [purchaseData, navigate, location.state]);
+  }, [purchaseData, navigate]);
 
   if (!purchaseData) {
     return (

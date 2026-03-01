@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const UserDetailsPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -144,6 +145,7 @@ const UserDetailsPage = () => {
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car Number</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Sold Price</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Status</th>
+                  <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -158,6 +160,14 @@ const UserDetailsPage = () => {
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${(car?.status ?? '') === 'sold' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
                         {car?.status ?? '—'}
                       </span>
+                    </td>
+                    <td className="py-3 px-4 border-b border-gray-800">
+                      <button
+                        onClick={() => navigate(`/car-details/${car._id}`)}
+                        className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                      >
+                        View Details
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -177,6 +187,7 @@ const UserDetailsPage = () => {
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Car Number</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Bought From</th>
                   <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Purchase Price</th>
+                  <th className="py-3 px-4 border-b border-gray-700 text-left text-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,6 +197,18 @@ const UserDetailsPage = () => {
                     <td className="py-3 px-4 border-b border-gray-800">{purchase?.car?.carNumber ?? '—'}</td>
                     <td className="py-3 px-4 border-b border-gray-800">{purchase?.car?.sellerName ?? '—'}</td>
                     <td className="py-3 px-4 border-b border-gray-800 text-green-400 font-semibold">₹{purchase?.totalPrice ?? 0}</td>
+                    <td className="py-3 px-4 border-b border-gray-800">
+                      {purchase?.car?._id ? (
+                        <button
+                          onClick={() => navigate(`/car-details/${purchase.car._id}`)}
+                          className="inline-block bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          View Details
+                        </button>
+                      ) : (
+                        <span className="text-gray-500 text-sm">N/A</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

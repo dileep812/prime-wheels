@@ -30,6 +30,8 @@ import MyTestDrives from './pages/MyTestDrives';
 import AgentTestDriveManagement from './pages/AgentTestDriveManagement';
 import AgentPendingTestDriveRequests from './pages/AgentPendingTestDriveRequests';
 import AdminTestDriveManagement from './pages/AdminTestDriveManagement';
+import CarDetailsView from './pages/CarDetailsView';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -59,6 +61,7 @@ export default function App() {
             <Route path="/agent/test-drive-requests" element={<AgentPendingTestDriveRequests />} />
             <Route path="/agent/test-drives" element={<AgentTestDriveManagement />} />
             <Route path="/admin/test-drives" element={<AdminTestDriveManagement />} />
+            <Route path="/car-details/:carId" element={<CarDetailsView />} />
           </Route>
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/car/:id" element={<CarDetails />} />

@@ -3,8 +3,8 @@ import {
   createPurchase,
   getUserPurchases,
   getPurchaseById,
-  updatePurchaseStatus,
-  getAllPurchases
+  getAllPurchases,
+  getPurchaseByCarId
 } from '../controllers/purchase.controller.js';
 import { verifyToken } from '../utils/verifyUser.js';
 
@@ -16,11 +16,11 @@ router.post('/create', verifyToken, createPurchase);
 // Get all purchases for a specific user
 router.get('/user/:userId', verifyToken, getUserPurchases);
 
+// Get purchase by car ID
+router.get('/car/:carId', verifyToken, getPurchaseByCarId);
+
 // Get a specific purchase by ID
 router.get('/:id', verifyToken, getPurchaseById);
-
-// Update purchase status
-router.patch('/:id/status', verifyToken, updatePurchaseStatus);
 
 // Get all purchases (admin only)
 router.get('/', verifyToken, getAllPurchases);

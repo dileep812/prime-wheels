@@ -24,6 +24,10 @@ import {
   ChevronLeft,
   ChevronRight,
   CartFill,
+  ExclamationTriangle,
+  Shield,
+  Star,
+  CheckCircleFill,
 } from "react-bootstrap-icons"
 import { useCart } from "../contexts/CartContext"
 import TestDriveRequestModal from "../components/TestDriveRequestModal"
@@ -41,7 +45,7 @@ export default function CarDetails() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState("specs")
+  const [activeTab, setActiveTab] = useState("overview")
   const [showTestDriveModal, setShowTestDriveModal] = useState(false)
 
   useEffect(() => {
@@ -279,10 +283,19 @@ export default function CarDetails() {
 
             {/* Tabs Navigation */}
             <div className="border-b border-slate-700 mb-6">
-              <div className="flex gap-8">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "overview"
+                    ? "text-blue-400 border-b-2 border-blue-400"
+                    : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                    }`}
+                >
+                  Overview
+                </button>
                 <button
                   onClick={() => setActiveTab("specs")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "specs"
+                  className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "specs"
                     ? "text-blue-400 border-b-2 border-blue-400"
                     : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
                     }`}
@@ -291,7 +304,7 @@ export default function CarDetails() {
                 </button>
                 <button
                   onClick={() => setActiveTab("features")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "features"
+                  className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "features"
                     ? "text-blue-400 border-b-2 border-blue-400"
                     : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
                     }`}
@@ -300,18 +313,107 @@ export default function CarDetails() {
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`pb-4 font-medium transition-all duration-300 transform hover:scale-105 ${activeTab === "details"
+                  className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "details"
                     ? "text-blue-400 border-b-2 border-blue-400"
                     : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
                     }`}
                 >
                   Additional Details
                 </button>
+                {car.accidentHistory && car.accidentHistory.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab("accidents")}
+                    className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "accidents"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                      }`}
+                  >
+                    Accident History
+                  </button>
+                )}
+                {car.ownershipHistory && car.ownershipHistory.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab("ownership")}
+                    className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "ownership"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                      }`}
+                  >
+                    Ownership History
+                  </button>
+                )}
+                {car.insuranceDetails && (
+                  <button
+                    onClick={() => setActiveTab("insurance")}
+                    className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "insurance"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                      }`}
+                  >
+                    Insurance
+                  </button>
+                )}
+                {car.documentUploads && (car.documentUploads.rcFront || car.documentUploads.rcBack || car.documentUploads.insuranceCopy || car.documentUploads.pucCertificate || car.documentUploads.nocDocument || (car.documentUploads.serviceLogs && car.documentUploads.serviceLogs.length > 0)) && (
+                  <button
+                    onClick={() => setActiveTab("documents")}
+                    className={`px-4 pb-4 font-medium transition-all duration-300 transform hover:scale-105 whitespace-nowrap ${activeTab === "documents"
+                      ? "text-blue-400 border-b-2 border-blue-400"
+                      : "text-slate-400 hover:text-white hover:border-b-2 hover:border-slate-500"
+                      }`}
+                  >
+                    Documents
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Tabs Content */}
             <div>
+              {/* Overview Tab */}
+              {activeTab === "overview" && (
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-br from-blue-600/20 to-blue-900/20 rounded-lg p-6 border border-blue-500/50">
+                    <h4 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                      <Star className="w-6 h-6 text-yellow-400" /> Car Highlights
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Brand & Model</p>
+                        <p className="text-lg font-bold">{car.brand} {car.model}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Year</p>
+                        <p className="text-lg font-bold">{car.manufacturedYear}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Kilometers Driven</p>
+                        <p className="text-lg font-bold">{formatPrice(car.traveledKm)} km</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Price</p>
+                        <p className="text-lg font-bold text-green-400">₹{formatPrice(car.price)}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Transmission</p>
+                        <p className="text-lg font-bold">{car.transmission}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Fuel Type</p>
+                        <p className="text-lg font-bold">{car.fuelType}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Vehicle Type</p>
+                        <p className="text-lg font-bold">{car.vehicleType}</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4">
+                        <p className="text-gray-400 text-sm mb-2">Seating</p>
+                        <p className="text-lg font-bold">{car.seater} Seats</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {activeTab === "specs" && (
                 <div className="grid grid-cols-3 gap-4">
                   <SpecCard icon={<Gear size={24} />} title="Engine" value={`${car.engine} CC`} />
@@ -451,6 +553,202 @@ export default function CarDetails() {
                       </li>
                     </ul>
                   </div>
+                </div>
+              )}
+
+              {/* Accident History Tab */}
+              {activeTab === "accidents" && (
+                <div className="space-y-4">
+                  {car.accidentHistory && car.accidentHistory.length > 0 ? (
+                    car.accidentHistory.map((incident, idx) => (
+                      <div key={idx} className="bg-red-600/20 rounded-lg p-4 border border-red-500/50">
+                        <div className="flex items-start gap-4">
+                          <ExclamationTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-1" />
+                          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-sm">Incident Type</p>
+                              <p className="font-semibold">{incident.incidentType || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Accident Date</p>
+                              <p className="font-semibold">{incident.accidentDate ? formatDate(incident.accidentDate) : 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Repair Status</p>
+                              <p className="font-semibold">{incident.repairStatus || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Airbags Deployed</p>
+                              <p className={`font-semibold ${incident.airbagsDeployed ? 'text-red-400' : 'text-green-400'}`}>
+                                {incident.airbagsDeployed ? 'Yes' : 'No'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Insurance Claimed</p>
+                              <p className={`font-semibold ${incident.insuranceClaimed ? 'text-yellow-400' : 'text-green-400'}`}>
+                                {incident.insuranceClaimed ? 'Yes' : 'No'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <CheckCircleFill className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                      <p className="text-slate-300 font-semibold">No accident history recorded</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Ownership History Tab */}
+              {activeTab === "ownership" && (
+                <div className="space-y-4">
+                  {car.ownershipHistory && car.ownershipHistory.length > 0 ? (
+                    car.ownershipHistory.map((owner, idx) => (
+                      <div key={idx} className="bg-slate-800 rounded-lg p-4 border border-slate-600">
+                        <div className="flex items-start gap-4">
+                          <Person className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
+                          <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-sm">Owner Sequence</p>
+                              <p className="font-semibold">{owner.ownerSequence || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Usage Category</p>
+                              <p className="font-semibold">{owner.usageCategory || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Registration City</p>
+                              <p className="font-semibold">{owner.registrationCity || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-sm">Ownership Duration</p>
+                              <p className="font-semibold">{owner.ownershipDuration || 'N/A'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Person className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                      <p className="text-slate-300 font-semibold">No ownership history available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Insurance Details Tab */}
+              {activeTab === "insurance" && (
+                <div className="space-y-4">
+                  {car.insuranceDetails ? (
+                    <div className="bg-gradient-to-br from-blue-600/20 to-blue-900/20 rounded-lg p-6 border border-blue-500/50">
+                      <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-blue-400" /> Insurance Information
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div>
+                          <p className="text-slate-400 text-sm mb-2">Policy Type</p>
+                          <p className="text-lg font-bold text-white">{car.insuranceDetails.policyType || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 text-sm mb-2">Provider</p>
+                          <p className="text-lg font-bold text-white">{car.insuranceDetails.providerName || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 text-sm mb-2">NCB %</p>
+                          <p className="text-lg font-bold text-green-400">{car.insuranceDetails.ncbPercentage || 0}%</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 text-sm mb-2">Expiry Date</p>
+                          <p className="text-lg font-bold text-white">
+                            {car.insuranceDetails.expiryDate ? formatDate(car.insuranceDetails.expiryDate) : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Shield className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                      <p className="text-slate-300 font-semibold">No insurance details available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Documents Tab */}
+              {activeTab === "documents" && (
+                <div className="space-y-4">
+                  {car.documentUploads ? (
+                    <div className="bg-gradient-to-br from-emerald-600/20 to-emerald-900/20 rounded-lg p-6 border border-emerald-500/50">
+                      <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <CheckCircleFill className="w-6 h-6 text-emerald-400" /> Car has the following documents
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {car.documentUploads.rcFront && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">RC Front</p>
+                              <p className="text-slate-400 text-sm">Registration Certificate - Front</p>
+                            </div>
+                          </div>
+                        )}
+                        {car.documentUploads.rcBack && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">RC Back</p>
+                              <p className="text-slate-400 text-sm">Registration Certificate - Back</p>
+                            </div>
+                          </div>
+                        )}
+                        {car.documentUploads.insuranceCopy && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">Insurance Copy</p>
+                              <p className="text-slate-400 text-sm">Insurance Policy Document</p>
+                            </div>
+                          </div>
+                        )}
+                        {car.documentUploads.pucCertificate && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">PUC Certificate</p>
+                              <p className="text-slate-400 text-sm">Pollution Under Control</p>
+                            </div>
+                          </div>
+                        )}
+                        {car.documentUploads.nocDocument && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">NOC Document</p>
+                              <p className="text-slate-400 text-sm">No Objection Certificate</p>
+                            </div>
+                          </div>
+                        )}
+                        {car.documentUploads.serviceLogs && car.documentUploads.serviceLogs.length > 0 && (
+                          <div className="flex items-center gap-3 p-4 bg-slate-800/50 rounded-lg border border-emerald-500/30">
+                            <CheckCircleFill className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                            <div>
+                              <p className="text-white font-semibold">Service Logs</p>
+                              <p className="text-slate-400 text-sm">{car.documentUploads.serviceLogs.length} document(s)</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <CheckCircleFill className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                      <p className="text-slate-300 font-semibold">No documents available</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
