@@ -93,28 +93,39 @@ const carSchema = new Schema(
       min: [1000, "Price must be at least ₹1,000"],
     },
     accidentHistory: {
-      type: [
-        {
-          incidentType: {
-            type: String,
-            enum: [
-              "minor_scratch_dent",
-              "bumper_replacement",
-              "glass_windshield_damage",
-              "major_collision",
-            ],
-          },
-          accidentDate: Date,
-          repairStatus: {
-            type: String,
-            enum: ["authorized_center", "local_repair"],
-          },
-          airbagsDeployed: Boolean,
-          insuranceClaimed: Boolean,
-        },
-      ],
-      default: [],
-    },
+  type: [
+    {
+      incidentType: {
+        type: String,
+        enum: [
+          "minor_scratch_dent",
+          "bumper_replacement",
+          "glass_windshield_damage",
+          "major_collision"
+        ],
+        required: true
+      },
+      accidentDate: {
+        type: Date,
+        required: true
+      },
+      repairStatus: {
+        type: String,
+        enum: ["authorized_center", "local_repair"],
+        required: true
+      },
+      airbagsDeployed: {
+        type: Boolean,
+        required: true
+      },
+      insuranceClaimed: {
+        type: Boolean,
+        required: true
+      }
+    }
+  ],
+  default: []
+},
     ownershipHistory: [
       {
         ownerSequence: {
