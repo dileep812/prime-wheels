@@ -73,14 +73,15 @@ export const sellCar = async (req, res, next) => {
     const photoUrls = photos;
 
     const normalizedAccidentHistory = Array.isArray(accidentHistory)
-    ? accidentHistory.map((item) => ({
-        incidentType: item.incidentType,
-        accidentDate: new Date(item.accidentDate),
-        repairStatus: item.repairStatus,
-        airbagsDeployed: Boolean(item.airbagsDeployed),
-        insuranceClaimed: Boolean(item.insuranceClaimed),
-      }))
-    : [];
+      ? accidentHistory.map((item) => ({
+          incidentType: item.incidentType,
+          accidentDate: new Date(item.accidentDate),
+          repairStatus: item.repairStatus,
+          airbagsDeployed: Boolean(item.airbagsDeployed),
+          insuranceClaimed: Boolean(item.insuranceClaimed),
+          description: item.description?.trim() || "",
+        }))
+      : [];
 
     const normalizedOwnershipHistory = ownershipHistory.map((item) => ({
       ownerSequence: Number(item.ownerSequence),

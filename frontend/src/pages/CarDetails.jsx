@@ -589,6 +589,10 @@ export default function CarDetails() {
                                 {incident.insuranceClaimed ? 'Yes' : 'No'}
                               </p>
                             </div>
+                            <div className="col-span-2 md:col-span-3">
+                              <p className="text-slate-400 text-sm">Description</p>
+                              <p className="font-semibold">{incident.description || 'N/A'}</p>
+                            </div>
                           </div>
                         </div>
                       </div>

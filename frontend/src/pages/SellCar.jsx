@@ -179,6 +179,7 @@ const createEmptyAccidentHistory = () => ({
   repairStatus: "",
   airbagsDeployed: false,
   insuranceClaimed: false,
+  description: "",
 });
 
 const createEmptyOwnershipHistory = () => ({
@@ -1003,7 +1004,7 @@ export default function SellCar() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold text-slate-200">
-                Accident History
+                Accident History (Optional)
               </h3>
               <button
                 type="button"
@@ -1013,6 +1014,10 @@ export default function SellCar() {
                 + Add Incident
               </button>
             </div>
+
+            <p className="text-slate-400 text-sm">
+              Add incidents only if the car has accident records.
+            </p>
             
             {formData.accidentHistory.length === 0 && (
               <p className="text-slate-400 text-sm">
@@ -1027,15 +1032,13 @@ export default function SellCar() {
               >
                 <div className="flex items-center justify-between">
                   <p className="text-slate-300 font-medium">Incident #{index + 1}</p>
-                  {formData.accidentHistory.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeAccidentHistory(index)}
-                      className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
-                    >
-                      Remove
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAccidentHistory(index)}
+                    className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                  >
+                    Remove
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1124,6 +1127,17 @@ export default function SellCar() {
                   />
                   Did airbags deploy?
                 </label>
+
+                <FormField
+                  id={`accidentDescription-${index}`}
+                  label="Accident Description (Optional)"
+                  type="text"
+                  placeholder="Briefly describe the incident"
+                  value={incident.description || ""}
+                  onChange={(e) =>
+                    handleAccidentHistoryChange(index, "description", e.target.value)
+                  }
+                />
               </div>
             ))}
             {errors.accidentHistory && (
