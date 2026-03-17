@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-export default function Footer({ currentUser }) {
+export default function Footer() {
+  const { currentUser } = useSelector((state) => state.user);
+
+  // Only show "Agent Hiring" to guests and normalUsers — not to agents or admins
+  const showAgentHiring = !currentUser || currentUser.role === "normalUser";
+
   return (
     <div className="bg-[#cfe2dd] w-full py-0">
 
@@ -61,6 +67,13 @@ export default function Footer({ currentUser }) {
               <li><Link to="/inventory" className="hover:text-white">Browse Cars</Link></li>
               <li><Link to="/sell-car" className="hover:text-white">Sell Your Car</Link></li>
               <li><Link to="/about-us" className="hover:text-white">About Us</Link></li>
+              {showAgentHiring && (
+                <li>
+                  <Link to="/agent-hiring" className="hover:text-white font-bold">
+                    Agent Hiring
+                  </Link>
+                </li>
+              )}
               <li><Link to="/" className="hover:text-white">Contact</Link></li>
             </ul>
           </div>
@@ -71,7 +84,7 @@ export default function Footer({ currentUser }) {
             <ul className="space-y-3 text-gray-300">
               <li><a className="hover:text-white">Privacy Policy</a></li>
               <li><a className="hover:text-white">Terms of Service</a></li>
-              <li><a className="hover:text-white">Support & Help</a></li>
+              <li><a className="hover:text-white">Support &amp; Help</a></li>
             </ul>
           </div>
         </div>
