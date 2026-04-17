@@ -25,6 +25,7 @@ import notificationRoutes from './routes/notification.route.js';
 import purchaseRoutes from './routes/purchase.route.js';
 import reviewRoutes from './routes/review.route.js';
 import testdriveRoutes from './routes/testdrive.route.js';
+import healthRoutes from './routes/health.route.js';
 import openApiSpec from './swagger/openapi.js';
 import { responseTime } from "./middleware/responseTime.js";
 
@@ -71,6 +72,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(helmet())
+app.use("/health", healthRoutes);
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
 app.use("/backend/sell-car", sellRoutes);
