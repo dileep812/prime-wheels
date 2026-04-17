@@ -61,7 +61,9 @@ app.use(
 app.use(morgan("dev"));
 
 // Redis-backed limiting works across containers and survives app restarts.
-app.use(redisLimiter);
+if (process.env.NODE_ENV !== "test") {
+    app.use(redisLimiter);
+}
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
     .split(',')
@@ -162,7 +164,22 @@ app.use((err, req, res, next) => {
 
 const port = Number(process.env.PORT || 3000);
 
+<<<<<<< HEAD
 app.listen(port, '0.0.0.0', async () => {
     console.log(`Server started on port ${port}`);
     await Promise.allSettled([connectDB(), connectRedis()]);
 });
+=======
+// ✅ Always connect DB
+connectDB();
+
+// ✅ Only start server + Redis outside test
+if (process.env.NODE_ENV !== "test") {
+    app.listen(port, async () => {
+        console.log(`Server started on port ${port}`);
+        await connectRedis();
+    });
+}
+
+export default app;
+>>>>>>> 2be63e8 (unit testing by jest)
