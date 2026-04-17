@@ -1,0 +1,63 @@
+name: PrimeWheels CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      # ---------- BACKEND ----------
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run Backend Tests
+        working-directory: ./backend
+        run: npm test
+        env:
+          NODE_ENV: test
+          MONGO_URI: mongodb://localhost:27017/fdfed
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: testsecret
+
+      # ---------- FRONTEND ----------
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # ---------- DOCKER CHECK ----------
+      - name: Build Backend Docker Image
+        run: docker build -t backend ./backend
+
+      - name: Build Frontend Docker Image
+        run: docker build -t frontend ./frontend
