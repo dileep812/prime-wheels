@@ -1,5 +1,5 @@
+import "dotenv/config";
 import express from 'express';
-import dotenv from 'dotenv';
 import { connectDB } from './db/connectDB.js';
 import cookieParser from "cookie-parser";
 import cors from 'cors';
@@ -29,7 +29,6 @@ import healthRoutes from './routes/health.route.js';
 import openApiSpec from './swagger/openapi.js';
 import { responseTime } from "./middleware/responseTime.js";
 
-dotenv.config();
 const app = express();
 
 app.set('trust proxy', 1); // Trust first proxy for rate limiting
@@ -77,8 +76,16 @@ app.use(cors({
 app.use(responseTime);
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 
-app.use(helmet())
+// Serve static frontend files (only if they exist)
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+
+if (fs.existsSync(frontendDistPath)) {
+    app.use(express.static(frontendDistPath));
+}
+
+// API Routes
 app.use("/health", healthRoutes);
 app.use("/backend/auth", authRoutes);
 app.use("/backend/user", userRoutes);
@@ -99,24 +106,24 @@ app.use('/backend/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
     customSiteTitle: 'PrimeWheels API Docs'
 }));
 
-
 app.use('/backend', (req, res) => {
     res.json({ message: "Hello from backend" });
 });
+
+// Single Page Application (SPA) Support 
+// (Sends index.html for any route that isn't an API or static file)
+if (fs.existsSync(frontendDistPath)) {
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(frontendDistPath, "index.html"));
+    });
+}
 
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err);
     if (err && err.stack) {
         console.error(err.stack);
     }
-    console.error("Error properties:", JSON.stringify({
-        message: err?.message,
-        name: err?.name,
-        code: err?.code,
-        statusCode: err?.statusCode,
-        field: err?.field,
-    }, null, 2));
-
+    
     if (err instanceof multer.MulterError) {
         const multerMessage = err.message || "File upload failed.";
         return res.status(400).json({
@@ -168,7 +175,7 @@ async function startServer() {
     try {
         await Promise.all([connectDB(), connectRedis()]);
 
-        app.listen(port, '0.0.0.0', () => {
+        app.listen(port, () => {
             console.log(`Server started on port ${port}`);
         });
     } catch (err) {
@@ -181,4 +188,4 @@ if (process.env.NODE_ENV !== "test") {
     startServer();
 }
 
-export default app;
+export default app;

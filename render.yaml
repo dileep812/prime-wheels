@@ -2,20 +2,16 @@ services:
   - type: web
     name: fdfed-backend
     env: docker
+    dockerContext: .
+    dockerfilePath: Dockerfile
     plan: free
-    region: oregon
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    healthCheckPath: /health
-    autoDeploy: true
+    region: singapore
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
       - key: MONGO_URI
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: JWT_SECRET
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
@@ -27,9 +23,9 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
-      - key: ADMIN_EMAILS
-        sync: false
-      - key: AGENT_EMAILS
+      - key: REDIS_URL
         sync: false
       - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_SECRET
         sync: false
