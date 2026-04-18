@@ -33,11 +33,13 @@ export default function OAuth() {
                 credentials: 'include',
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Google sign-in failed on server.');
+            // Handle non-JSON responses (e.g. Render cold starts)
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                throw new Error("Server is waking up. Please try again in 10 seconds.");
             }
+
+            const data = await res.json();
 
             dispatch(signInSuccess(data));
             navigate('/');

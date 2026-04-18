@@ -41,12 +41,15 @@ export default function SignIn() {
                 credentials: 'include',
             });
 
-            const data=await res.json();
-
-            if(!res.ok) {
-                dispatch(signInFailure(data.error || data.message || 'Sign in failed'));
+            // Handle non-JSON responses (e.g. Render cold starts)
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                const errorMsg = res.status === 404 ? "Backend route not found." : "Server is waking up. Please try again in 10 seconds.";
+                dispatch(signInFailure(errorMsg));
                 return;
             }
+
+            const data = await res.json();
             dispatch(signInSuccess(data));
             navigate('/');
         }catch(error){

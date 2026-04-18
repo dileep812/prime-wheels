@@ -81,6 +81,15 @@ export default function ForgotPassword() {
                 body: JSON.stringify({ email }),
                 credentials: 'include',
             });
+            
+            // Handle non-JSON responses
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                setError("Server is waking up. Please try again in 10 seconds.");
+                setLoading(false);
+                return;
+            }
+
             const data = await res.json();
 
             if (data.message || data.success) {
@@ -134,6 +143,15 @@ export default function ForgotPassword() {
                 body: JSON.stringify({ email }),
                 credentials: 'include',
             });
+
+            // Handle non-JSON responses
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                setError("Server is waking up. Please try again in 10 seconds.");
+                setLoading(false);
+                return;
+            }
+
             const data = await res.json();
 
             if (data.message || data.success) {
@@ -181,6 +199,15 @@ export default function ForgotPassword() {
                 body: JSON.stringify({ email, otp: otpString }),
                 credentials: 'include',
             });
+
+            // Handle non-JSON responses
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                setError("Server is waking up. Please try again in 10 seconds.");
+                setLoading(false);
+                return;
+            }
+
             const data = await res.json();
 
             if (data.message || res.ok) {
@@ -230,6 +257,15 @@ export default function ForgotPassword() {
                 body: JSON.stringify({ email, otp: otpString, newPassword }),
                 credentials: 'include',
             });
+
+            // Handle non-JSON responses
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                setError("Server is waking up. Please try again in 10 seconds.");
+                setLoading(false);
+                return;
+            }
+
             const data = await res.json();
 
             if (data.message || data.success) {
