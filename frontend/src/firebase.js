@@ -7,9 +7,9 @@ import { initializeApp } from "firebase/app";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: "fdfed-project-a65b6.firebaseapp.com",
-  projectId: "fdfed-project-a65b6",
-  storageBucket: "fdfed-project-a65b6.firebasestorage.app",
+  authDomain: "prime-wheels-c3089.firebaseapp.com",
+  projectId: "prime-wheels-c3089",
+  storageBucket: "prime-wheels-c3089.firebasestorage.app",
   messagingSenderId: "542160872421",
   appId: "1:542160872421:web:b560d62be166e35c5e450c",
   measurementId: "G-T4BKTHWLTR"
