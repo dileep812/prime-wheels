@@ -1,6 +1,13 @@
 import mongoose from "mongoose";
 import Car from "../models/car.model.js";
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const createFlexibleExactMatcher = (value) => {
+  const normalizedValue = value.trim().replace(/[-_]+/g, " ");
+  const pattern = escapeRegex(normalizedValue).replace(/\s+/g, "[-\\s]+");
+  return new RegExp(`^${pattern}$`, "i");
+};
+
 export const listAvailableCars = async (req, res, next) => {
   try {
     const query = { status: "available" };
@@ -23,8 +30,8 @@ export const listAvailableCars = async (req, res, next) => {
       query.$text = { $search: search };
     }
 
-    if (brand && !search) query.brand = brand; // Direct match, relying on index
-    if (model && !search) query.model = model;
+    if (brand) query.brand = createFlexibleExactMatcher(brand);
+    if (model) query.model = createFlexibleExactMatcher(model);
     if (vehicleType) query.vehicleType = vehicleType;
     if (transmission) query.transmission = transmission;
     if (fuelType) query.fuelType = fuelType;

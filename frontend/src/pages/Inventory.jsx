@@ -13,9 +13,9 @@ export default function Inventory() {
   const brandFromUrl = queryParams.get("brand") || "";
   const searchFromUrl = queryParams.get("search") || "";
 
-  const storedFilters = JSON.parse(localStorage.getItem("carFilters")) || {
-    search: searchFromUrl,
-    brand: brandFromUrl,
+  const defaultFilters = {
+    search: "",
+    brand: "",
     model: "",
     transmission: "",
     fuelType: "",
@@ -26,6 +26,21 @@ export default function Inventory() {
     seater: "",
     traveledKm: "",
   };
+
+  const storedFilters = {
+    ...defaultFilters,
+    ...(JSON.parse(localStorage.getItem("carFilters")) || {}),
+  };
+
+  if (searchFromUrl) {
+    storedFilters.search = searchFromUrl;
+    storedFilters.brand = "";
+    storedFilters.model = "";
+  } else if (brandFromUrl) {
+    storedFilters.brand = brandFromUrl;
+    storedFilters.search = "";
+    storedFilters.model = "";
+  }
 
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,11 +98,11 @@ export default function Inventory() {
 
   useEffect(() => {
     if (searchFromUrl) {
-      const updated = { ...filters, search: searchFromUrl };
+      const updated = { ...filters, search: searchFromUrl, brand: "", model: "" };
       setFilters(updated);
       fetchCars(updated);
     } else if (brandFromUrl) {
-      const updated = { ...filters, brand: brandFromUrl };
+      const updated = { ...filters, brand: brandFromUrl, search: "", model: "" };
       setFilters(updated);
       fetchCars(updated);
     } else {
@@ -217,6 +232,11 @@ export default function Inventory() {
                   { value: "sedan", label: "Sedan" },
                   { value: "suv", label: "SUV" },
                   { value: "hatchback", label: "Hatchback" },
+                  { value: "coupe", label: "Coupe" },
+                  { value: "convertible", label: "Convertible" },
+                  { value: "off-road", label: "Off-road" },
+                  { value: "sport", label: "Sport" },
+                  { value: "muscle", label: "Muscle" },
                 ]} onChange={handleFilterChange} />
               </div>
 
