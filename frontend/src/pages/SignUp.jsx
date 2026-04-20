@@ -28,9 +28,9 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // No client-side password length validation
     try {
       dispatch(signInStart());
-
       const res = await fetch(apiUrl("/backend/auth/signup"), {
         method: "POST",
         headers: {
@@ -39,16 +39,18 @@ export default function SignUp() {
         body: JSON.stringify(formData),
         credentials: 'include',
       });
-
-      // Handle non-JSON responses (e.g. Render cold starts)
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType || !contentType.includes("application/json")) {
         const errorMsg = res.status === 404 ? "Backend route not found." : "Server is waking up. Please try again in 10 seconds.";
         dispatch(signInFailure(errorMsg));
         return;
       }
-
       const data = await res.json();
+      if (!res.ok) {
+        const backendMessage = data?.message || data?.error;
+        dispatch(signInFailure(backendMessage || "Sign up failed. Please check your details."));
+        return;
+      }
       dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
