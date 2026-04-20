@@ -229,27 +229,17 @@ export default function ForgotPassword() {
 
     const handleResetPassword = async (e) => {
         e.preventDefault();
-
-        // Prevent double submission
         if (loading) return;
-
         setError('');
         setMessage('');
-
+        // Client-side password validation
         if (newPassword !== confirmPassword) {
             setError('Passwords do not match!');
             return;
         }
-
-        if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters long');
-            return;
-        }
-
+        // No client-side password length validation
         setLoading(true);
-
         const otpString = otp.join('');
-
         try {
             const res = await fetch(apiUrl('/backend/auth/reset-password'), {
                 method: 'POST',
@@ -257,26 +247,22 @@ export default function ForgotPassword() {
                 body: JSON.stringify({ email, otp: otpString, newPassword }),
                 credentials: 'include',
             });
-
-            // Handle non-JSON responses
             const contentType = res.headers.get("content-type");
             if (!res.ok || !contentType || !contentType.includes("application/json")) {
                 setError("Server is waking up. Please try again in 10 seconds.");
                 setLoading(false);
                 return;
             }
-
             const data = await res.json();
-
-            if (data.message || data.success) {
-                setMessage(data.message || 'Password reset successfully');
-                setTimeout(() => navigate('/sign-in'), 2000);
-            } else {
-                setError(data.error || 'Something went wrong');
+            if (!res.ok) {
+                setError(data?.message || data?.error || 'Password reset failed. Please try again.');
                 setLoading(false);
+                return;
             }
+            setMessage(data.message || 'Password reset successfully');
+            setTimeout(() => navigate('/sign-in'), 2000);
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Network/server error. Please try again.');
             setLoading(false);
         }
     };

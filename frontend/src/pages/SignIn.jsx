@@ -29,9 +29,9 @@ export default function SignIn() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        // No client-side password length validation
         try{
             dispatch(signInStart());
-
             const res= await fetch(apiUrl('/backend/auth/signin'),{
                 method: 'POST',
                 headers: {
@@ -40,22 +40,26 @@ export default function SignIn() {
                 body: JSON.stringify(formData),
                 credentials: 'include',
             });
-
-            // Handle non-JSON responses (e.g. Render cold starts)
             const contentType = res.headers.get("content-type");
-            if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                const errorMsg = res.status === 404 ? "Backend route not found." : "Server is waking up. Please try again in 10 seconds.";
+            if (!contentType || !contentType.includes("application/json")) {
+                const errorMsg = res.status === 404
+                    ? "Backend route not found."
+                    : "Server is waking up. Please try again in 10 seconds.";
                 dispatch(signInFailure(errorMsg));
                 return;
             }
-
             const data = await res.json();
+            if (!res.ok) {
+                // Show backend error or fallback
+                const backendMessage = data?.message || data?.error;
+                dispatch(signInFailure(backendMessage || "Incorrect email or password."));
+                return;
+            }
             dispatch(signInSuccess(data));
             navigate('/');
         }catch(error){
-            dispatch(signInFailure(error.message));
+            dispatch(signInFailure(error.message || "Network/server error. Please try again."));
         }
-
     };
 
   return (
